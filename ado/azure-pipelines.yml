@@ -1,0 +1,15 @@
+# trigger: master
+trigger: 
+- master
+
+pool: default
+
+steps:
+- script: ls
+  displayName: 'Print Directory Content'
+- script: pwd
+  displayName: 'Server Directory Location'
+- script: env
+  displayName: 'Available Env Variables'
+- script: ./do_patch.sh
+  displayName: 'Tag Servers'

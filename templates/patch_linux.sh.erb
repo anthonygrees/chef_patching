@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Patches linux servers
+# Compatability:
+#    RHEL/CentOS/amazon linux/Oracle Linux: 6.x, 7.x
+#    SUSE: 15.x
+#    Debian/ubuntu: 14.x, 16.x
+
+# Provides error description, deletes lock file and exits
+error_handler() {
+    local err_code="$1"
+    local err_info="$2"
+    local pid_file="$3"
+    local log="$4"
+    if [ "$1" != 0 ]; then
+        echo "$err_info" >> $log
+        echo "Exiting with error code: $err_code" >> $log
+        rm -f $pid_file
+        echo 'result: failure' >> $log
+        exit $err_code
+    fi
+}
+
+# Creates a lock file that prevents the script from being re-executed if it is already running
+script_lock() {
+    local pid_file="$1"
+    local log="$2"
+    exec 200>$pid_file
+    flock -n 200
+    local pid=$$
+    echo $pid 1>&200
+}
+
+# Run update process. Logs output to file
+update() {
+    local os_fam="$1"
+    local log="$2"
+
+    echo '' >> $log
+
+    case $os_fam in
+        'debian')
+            if [ ! -f /etc/apt/apt.conf.d/local ]; then
+                echo 'Dpkg::Options {
+    "--force-confdef";
+    "--force-confold";
+}' > /etc/apt/apt.conf.d/local
+            fi
+
+            DEBIAN_FRONTEND=none apt-get clean >> $log
+            DEBIAN_FRONTEND=none apt-get update -y >> $log
+            DEBIAN_FRONTEND=none apt-get upgrade -y --fix-missing >> $log
+            ;;
+        'rhel')
+            yum makecache fast -y >> $log
+            yum update -y >> $log
+            ;;
+        'suse')
+            zypper clean –a >> $log
+            zypper refresh >> $log
+            zypper update -y >> $log
+            ;;
+        'ubuntu')
+            sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+            ;;
+        *)
+            echo "OS family not recognised: $os_fam"
+            echo 'Exiting.'
+            exit 1
+            ;;
+    esac
+}
+
+export PATH='/usr/local/sbin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin'
+log="<%= @log %>"
+os_fam='<%= @os_fam %>'
+os_vers='<%= @os_vers %>' # NOTE: os version doesn't get used anywhere, leaving here incase it's needed.
+script="$(basename $0)"
+pid_file="/var/run/${script}.lock"
+
+### Pre-flight checks
+if [[ $EUID -ne 0 ]]; then 
+    error_handler '1' 'This script must be run as root' "$pid_file" "$log" # Exit if not run by root
+fi
+script_lock "$pid_file" "$log" # Lock the process to prevent it being run multiple times
+error_handler $? "$script is already running" "$pid_file" "$log"
+### End pre-flight checks
+
+### Patching
+echo "Beginning updates and logging to $log"
+update "$os_fam" "$log"
+error_handler $? "Error during update action: $pkg_man $action" "$pid_file" "$log"
+echo 'Updates complete' >> "$log"
+echo 'Deleting lock file' >> "$log"
+rm -f "$pid_file"
+echo 'finished' >> "$log"
+### End patching

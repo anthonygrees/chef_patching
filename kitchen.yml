@@ -1,0 +1,111 @@
+---
+driver:
+  name: ec2
+  aws_ssh_key_id: <%= ENV['AWS_KEYPAIR'] %>
+  region: <%= ENV['AWS_REGION'] %>
+  security_group_ids: 
+    - <%= ENV['AWS_SECURITY_GROUP_ID'] %>
+  subnet_id: <%= ENV['AWS_SUBNET_ID'] %>
+  vpc_id: <%= ENV['AWS_VPC_ID'] %>
+  associate_public_ip: true
+  instance_type: m3.medium
+  tags:
+    # Replace YOURNAME and YOURCOMPANY here
+    Name: "Chef Training Node for <YOURNAME>, <%= ENV['TRAINER_NAME'] %>"
+    user: Administrator
+    X-Contact: <%= ENV['TRAINER_NAME'] %>
+    X-Application: "Training"
+    X-Dept: "sales"
+    X-Customer: <%= ENV['TRAINER_NAME'] %>
+    X-Project: "Student_Lab"
+    X-TTL: 4
+
+provisioner:
+  name: chef_zero
+  product_name: chef
+  chef_license: accept
+  product_version: 15.12.22
+  retry_on_exit_code: 
+    - [35, 37, 41]
+  max_retries: 15
+  wait_for_retry: 600  
+  client_rb:
+    exit_status: enabled
+    client_fork: false 
+  
+verifier:
+  name: inspec
+  format: documentation
+
+platforms:
+  - name: ubuntu-16.04
+    driver:
+    # This is an old Ubuntu image that will need patching
+      image_id: ami-042b1570ee0c84f5a
+    transport:
+      username: ubuntu
+      ssh_key: C:\Users\Chef\.ssh\id_rsa
+    driver_config:
+      user_data: C:/Users/chef/user_data
+  - name: windows2012-r2
+    transport:
+      username: administrator
+      ssh_key:  ~\.ssh\id_rsa
+      communicator: winrm
+  - name: windows2012-r2-old
+    driver_config:
+    # NOTE: If you don't specify an out of date Windows there will not be
+    # any updates to apply. You can get a current list of 2012R2 AMI's by running
+    # aws ec2 describe-images --owners self amazon --filters "Name=platform,Values=windows"
+    # aws ec2 describe-images --owners self amazon --filters "Name=name,Values=*2012*" --query 'reverse(sort_by(Images, &CreationDate))[].[Name, ImageId, CreationDate, Description]'
+      image_id: ami-0550748fb4ad6fbde
+    transport:
+      username: administrator
+      ssh_key:  ~\.ssh\id_rsa
+      communicator: winrm
+
+suites:
+  - name: linux
+    run_list:
+      - recipe[chef_patching::bootstrap_ubuntu]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:
+      environment:
+       automate_url: <%= ENV['AUTOMATE_HOSTNAME'] %>
+       chef_org: <%= ENV['CHEF_ORG'] %>
+    excludes:
+      - windows2012-r2-old
+      - windows2012-r2
+  - name: wsus_server
+    run_list:
+      - recipe[chef_patching::wsus_server]
+    verifier:
+      inspec_tests:
+        - test/smoke/default
+    attributes:
+      environment:
+       automate_url: <%= ENV['AUTOMATE_HOSTNAME'] %>
+       chef_org: <%= ENV['CHEF_ORG'] %>
+    excludes:
+      - windows2012-r2-old
+      - ubuntu-16.04
+  - name: wsus_client
+    run_list:
+      - recipe[chef_patching::wsus_client]
+    verifier:
+      inspec_tests:
+        - test/smoke/default
+    attributes:
+      environment:
+       automate_url: <%= ENV['AUTOMATE_HOSTNAME'] %>
+       chef_org: <%= ENV['CHEF_ORG'] %>
+      wsus_client:
+      # NOTE: this needs to be set on each run, the DNS entry from the AzureRM driver creates
+      # as kitchen-[driver UUID].[location].cloudapp.azure.com 
+      # the UUID can be found in .kitchen/server-windows2012-r2.yml
+      # Don't forget to include 'http://' and ':8530' in the WSUS server string
+        wsus_server: "http://kitchen-87c454246ba8713e.centralus.cloudapp.azure.com:8530"
+    excludes:
+      - ubuntu-16.04
