@@ -10,7 +10,7 @@ chef_server_url 'https://#{node['environment']['automate_url']}/organizations/#{
 validation_key 'C:\\Users\\Administrator\\AppData\\Local\\Temp\\kitchen\\cookbooks\\chef_patching\\recipes\\validator.pem'
 node_name '{0}'
 policy_group 'development'
-policy_name 'base_windows2012_detect'
+policy_name 'patching'
 ssl_verify_mode :verify_none
 chef_license 'accept'
 "@ -f $nodeName

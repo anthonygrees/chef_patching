@@ -1,5 +1,5 @@
 # Specify the free storage for a partition in GB
-default['chef_patching']['var_partition_min_diskspace_required_in_GB'] = 10
+default['chef_patching']['var_partition_min_diskspace_required_in_GB'] = 1
 
 # WSUS
 default['wsus_server']['synchronize']['timeout'] = 0
