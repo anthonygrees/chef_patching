@@ -5,7 +5,7 @@
 # looping over multiple items at a time: https://stackoverflow.com/questions/25814250/loop-with-more-than-one-item-at-a-time
 # async commands: https://superuser.com/questions/318390/bash-run-commands-asynchronously-at-a-delay
 
-source ./do_patch_node_list
+source ./ado/do_patch_node_list
 
 tag='do_patch'
 
