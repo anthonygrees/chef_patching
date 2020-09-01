@@ -11,5 +11,5 @@ steps:
   displayName: 'Server Directory Location'
 - script: env
   displayName: 'Available Env Variables'
-- script: ./do_patch.sh
+- script: ./ado/do_patch.sh
   displayName: 'Tag Servers'
