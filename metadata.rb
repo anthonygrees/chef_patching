@@ -17,5 +17,5 @@ chef_version '>= 15.0'
 # a Supermarket.
 #
 # source_url 'https://github.com/<insert_org_here>/chef_patching'
-depends 'wsus-server', '=2.2.0'
-depends 'wsus-client', '=2.0.0'
+depends 'wsus-server', '=2.3.2'
+depends 'wsus-client', '=2.0.3'

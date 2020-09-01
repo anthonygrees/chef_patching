@@ -47,13 +47,15 @@ platforms:
       ssh_key: C:\Users\Chef\.ssh\id_rsa
     driver_config:
       user_data: C:/Users/chef/user_data
-  - name: windows2012-r2
+  - name: windows-2012-r2
+    driver:
+      image_id: ami-0bfd72d59f05f83f0
     transport:
       username: administrator
-      ssh_key:  ~\.ssh\id_rsa
+      ssh_key:  C:\Users\Chef\.ssh\id_rsa
       communicator: winrm
   - name: windows2012-r2-old
-    driver_config:
+    driver:
     # NOTE: If you don't specify an out of date Windows there will not be
     # any updates to apply. You can get a current list of 2012R2 AMI's by running
     # aws ec2 describe-images --owners self amazon --filters "Name=platform,Values=windows"
@@ -61,7 +63,7 @@ platforms:
       image_id: ami-0550748fb4ad6fbde
     transport:
       username: administrator
-      ssh_key:  ~\.ssh\id_rsa
+      ssh_key:  C:\Users\Chef\.ssh\id_rsa
       communicator: winrm
 
 suites:
