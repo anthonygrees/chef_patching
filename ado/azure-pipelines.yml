@@ -11,5 +11,7 @@ steps:
   displayName: 'Server Directory Location'
 - script: env
   displayName: 'Available Env Variables'
+- script: chmod 0755 ./ado/do_patch.sh
+  displayName: 'Update Permissions'
 - script: ./ado/do_patch.sh
   displayName: 'Tag Servers'
