@@ -3,6 +3,7 @@ default['chef_patching']['var_partition_min_diskspace_required_in_GB'] = 1
 
 # WSUS
 default['wsus_server']['synchronize']['timeout'] = 0
+default['wsus_server']['subscription']['configure_timeout']             = 2000
 # Defines the list of categories of updates that you want the WSUS server to synchronize. (Id or Title)
 default['wsus_server']['subscription']['categories']                    = [
                                                                           'Windows Server 2012 R2  and later drivers',
@@ -22,3 +23,4 @@ default['wsus_client']['wsus_server']                              = 'http://52.
 # => Truthy value also enable client-side update group targeting.
 default['wsus_client']['update_group']                             = 'My Server Group'
 default['wsus_client']['no_reboot_with_logged_users']              = false
+default['wsus_client']['update']['handle_reboot']                  = true

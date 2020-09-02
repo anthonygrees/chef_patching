@@ -8,7 +8,7 @@ driver:
   subnet_id: <%= ENV['AWS_SUBNET_ID'] %>
   vpc_id: <%= ENV['AWS_VPC_ID'] %>
   associate_public_ip: true
-  instance_type: m3.medium
+  instance_type: m3.xlarge
   tags:
     # Replace YOURNAME and YOURCOMPANY here
     Name: "Chef Training Node for <YOURNAME>, <%= ENV['TRAINER_NAME'] %>"
@@ -51,6 +51,8 @@ platforms:
     driver:
       image_id: ami-0bfd72d59f05f83f0
     transport:
+      name: winrm
+      elevated: true
       username: administrator
       ssh_key:  C:\Users\Chef\.ssh\id_rsa
       communicator: winrm
@@ -62,6 +64,8 @@ platforms:
     # aws ec2 describe-images --owners self amazon --filters "Name=name,Values=*2012*" --query 'reverse(sort_by(Images, &CreationDate))[].[Name, ImageId, CreationDate, Description]'
       image_id: ami-0550748fb4ad6fbde
     transport:
+      name: winrm
+      elevated: true
       username: administrator
       ssh_key:  C:\Users\Chef\.ssh\id_rsa
       communicator: winrm
@@ -108,6 +112,6 @@ suites:
       # as kitchen-[driver UUID].[location].cloudapp.azure.com 
       # the UUID can be found in .kitchen/server-windows2012-r2.yml
       # Don't forget to include 'http://' and ':8530' in the WSUS server string
-        wsus_server: "http://kitchen-87c454246ba8713e.centralus.cloudapp.azure.com:8530"
+        wsus_server: "http://ec2-54-201-10-251.us-west-2.compute.amazonaws.com/:8530"
     excludes:
       - ubuntu-16.04
