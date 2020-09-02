@@ -112,6 +112,6 @@ suites:
       # as kitchen-[driver UUID].[location].cloudapp.azure.com 
       # the UUID can be found in .kitchen/server-windows2012-r2.yml
       # Don't forget to include 'http://' and ':8530' in the WSUS server string
-        wsus_server: "http://ec2-54-201-10-251.us-west-2.compute.amazonaws.com/:8530"
+        wsus_server: "http://ec2-54-201-10-251.us-west-2.compute.amazonaws.com:8530"
     excludes:
       - ubuntu-16.04
