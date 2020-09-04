@@ -6,6 +6,12 @@ This cookbook is made to work with the Apprentice Chef training lab.  It will st
 - Windows WSUS Server
 - Windows WSUS Client to be patched
   
+Patching is triggered by tagging your Nodes using the ADO Pipeline and running `do_patch.sh` and you add the nodes to be tagged in the file `do_patch_node_list`
+  
+## Overview
+
+![Patching](/images/diagram.png)
+  
 
 
 
